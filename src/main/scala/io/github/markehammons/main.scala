@@ -82,13 +82,11 @@ object main {
     output.last_frame = now
   }
 
-  def output_destroy_notify(server: mcw_server, output: mcw_output): FI5 = (_: Pointer[wl_listener], _: Pointer[_]) => {
+  def output_destroy_notify(output: mcw_output): FI5 = (_: Pointer[wl_listener], _: Pointer[_]) => {
     wl_list_remove(output.destroy.link$ptr())
     wl_list_remove(output.frame.link$ptr())
-    server.outputs -= output
-
-    wl_display_terminate(server.wl_display)
-    output.trashScope()
+    wl_display_terminate(output.server.wl_display)
+    output.free()
   }
 
   def new_output_notify(server: mcw_server, scope: Scope): FI5 = (_: Pointer[wl_listener], data: Pointer[_]) => {
@@ -101,11 +99,8 @@ object main {
     }
 
     val output = mcw_output(wlr_output.get(), server, scope.fork())
-    output.color.set(0,1f)
-    output.color.set(3,1f)
-    server.outputs += output
 
-    output.destroy.notify$set(scope.allocateCallback(output_destroy_notify(server, output)))
+    output.destroy.notify$set(scope.allocateCallback(output_destroy_notify(output)))
     wl_signal_add(extractAnonStruct(wlr_output.get()).destroy$ptr(), output.destroy.ptr())
     output.frame.notify$set(scope.allocateCallback(output_frame_notify(output)))
     wl_signal_add(extractAnonStruct(wlr_output.get()).frame$ptr(), output.frame.ptr())
