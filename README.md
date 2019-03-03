@@ -80,3 +80,10 @@ anonymous struct types from their parent structs. wlr_output_workaround exists f
 
 * I've implemented `wl_signal_add` in my code because it is inlined in the original library. 
 * I've implemented `wl_container_of` in my code because it's a macro in the original wayland library.
+
+
+## Notes
+
+In part 3 it shows using gnome-terminal with wayland mcwayface. I could not get gnome-terminal working, but weston-terminal works just fine: 
+
+![Imgur](https://i.imgur.com/1T03xi5.png)
