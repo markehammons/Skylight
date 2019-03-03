@@ -1,6 +1,8 @@
 import java.util.spi.ToolProvider
 import java.io.{ByteArrayOutputStream, PrintWriter}
 
+import java.lang.{System => JavaSystem}
+
 name := "Wayland McWayface (JVM-edition)"
 
 version := "0.1"
@@ -9,11 +11,17 @@ scalaVersion := "2.12.8"
 
 libraryDependencies += "org.scala-lang.modules" %% "scala-java8-compat" % "0.9.0"
 
-fork in run := true
+libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.5.21"
+
+libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.5.21"
+
+fork := true
 
 library := "wlroots"
 
 libraryPackage := "wlroots"
+
+javaOptions ++= Seq("-XX:+UnlockExperimentalVMOptions", "-XX:+EnableJVMCI","-Dgraal.ShowConfiguration=info")
 
 headers := Set(
   file("/usr/include/wlr/types/wlr_output.h"),
@@ -38,12 +46,15 @@ libraryPaths := Set(
   file("/usr/lib64/")
 )
 
-outputLibraryName := "wlroots.jar"
+outputLibraryName := "wlroots2.jar"
 
 //below is coding for jextract to be run by SBT and configuration to be done within sbt
 
 //this allows me to run jextract from within sbt
-def runTool(name: String, arguments: Seq[String]): Either[String,String] = {
+def runTool(name: String, arguments: String*): Either[String,String] = {
+  println(JavaSystem.getProperty("jextract.debug"))
+  println(arguments.mkString(" "))
+
   val maybeTool: Option[ToolProvider] = {
     val _tool = ToolProvider.findFirst(name)
     if(_tool.isPresent) {
@@ -57,18 +68,18 @@ def runTool(name: String, arguments: Seq[String]): Either[String,String] = {
     println(s"running ${tool.name()}")
     val stdOut = new ByteArrayOutputStream()
     val errOut = new ByteArrayOutputStream()
-    tool.run(new PrintWriter(System.out), new PrintWriter(System.err), arguments: _*)
-    (new String(stdOut.toByteArray), new String(errOut.toByteArray))
+    val code = tool.run(new PrintWriter(System.out), new PrintWriter(System.err), arguments: _*)
+    (code, new String(stdOut.toByteArray), new String(errOut.toByteArray))
   }
 
   result
     .toRight(s"Could not find tool $name in your java development environment")
-    .flatMap{ case (ret,err) =>
-      if(ret.contains("Error:") || err.nonEmpty) {
-        Left(ret + err)
+    .flatMap{ case (code,ret,err) =>
+      if(ret.contains("Error:") || err.nonEmpty || code != 0) {
+        Left(s"failure with code $code: ${ret + err}")
       } else {
-        println(ret)
-        println(err)
+        println(s"return value: $ret")
+        println(s"error value: $ret")
         Right(ret -> "")
       }
     }
@@ -107,5 +118,5 @@ jextract := {
     Seq("--record-library-path", "-l", library.value, "-t", libraryPackage.value, "-o", outputFile.getCanonicalPath)
 
   logger.log.info(s"issuing command jextract ${command.mkString(" ")}")
-  runTool("jextract", command).fold(sys.error, o => logger.log.debug(o))
+  runTool("jextract", command: _*).fold(sys.error, o => logger.log.debug(o))
 }

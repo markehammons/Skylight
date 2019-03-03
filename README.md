@@ -1,7 +1,8 @@
 # Wayland McWayface (JVM-edition)
 
-This is an implementation of Wayland McWayface [Part 1](https://drewdevault.com/2018/02/17/Writing-a-Wayland-compositor-1.html) by Drew DeVault. 
-In order to have bindings of wlroots and wayland within java, I've made use of the jextract utility provided by project panama.
+This is an implementation of Wayland McWayface [Part 2](https://drewdevault.com/2018/02/22/Writing-a-wayland-compositor-part-2.html) by Drew DeVault. 
+In order to have bindings of wlroots and wayland within java, I've made use of the jextract utility provided by project panama. 
+However, I've also made use of the `foreign` api directly as well, which can be seen in `usr.include.stdlib` in the scala sources.
 
 ## Dependencies
 
@@ -12,9 +13,34 @@ You'll also need the wayland development libraries, the wlroots library and deve
 
 In order to build this project, you must first run the following command in the root of this project:
 
-`jextract /usr/include/wlr/types/wlr_output.h /usr/include/wlr/backend.h /usr/include/wlr/render/wlr_renderer.h -m /usr/include/wlr/backend=wlroots.backend_headers -m /usr/include/bits/types=usr.include.bits.type_headers -I /usr/include/wlr -I /usr/include/wayland -I /usr/include/pixman-1 -C "-DWLR_USE_UNSTABLE" -L /usr/lib64 --record-library-path -l wlroots -t wlroots -o lib/wlroots.jar`
+```bash
+~/bin/jdk-13/bin/jextract /usr/include/wlr/types/wlr_output.h \
+ /usr/include/wlr/backend.h \
+ /usr/include/wlr/render/wlr_renderer.h \
+ /usr/include/wlr/types/wlr_idle.h \
+ /usr/include/wlr/types/wlr_gamma_control.h \
+ /usr/include/wlr/types/wlr_screenshooter.h \
+ /usr/include/wlr/types/wlr_primary_selection_v1.h \
+ -m /usr/include/wlr/backend=wlroots.backend_headers \
+ -m /usr/include/bits/types=usr.include.bits.type_headers \
+ -I /usr/include/wlr \
+ -I /usr/include/wayland \
+ -I /usr/include/pixman-1 \
+ -I /usr/include/libxkbcommon
+ -C "-DWLR_USE_UNSTABLE" \
+ -L /usr/lib64 \
+ --record-library-path \
+ -l wlroots \
+ -t wlroots \
+ -o lib/wlroots.jar
+```
 
 Then, you can run `sbt run` to activate the demo.
+
+Please note that this command may change depending on your linux distribution. 
+The important part to remember here is that you need to point to the header locations for wlr, wayland,
+pixman, and libxkbcommon with the -I flags, point to the location of the `.so` files with the -L command,
+and specify the specific headers you want to depend on like the first arguments to jextract above.
 
 ## Implementation
 
