@@ -14,7 +14,7 @@ You'll also need the wayland development libraries, the wlroots library and deve
 In order to build this project, you must first run the following command in the root of this project:
 
 ```bash
-~/bin/jdk-13/bin/jextract /usr/include/wlr/types/wlr_output.h \
+jextract /usr/include/wlr/types/wlr_output.h \
  /usr/include/wlr/backend.h \
  /usr/include/wlr/render/wlr_renderer.h \
  /usr/include/wlr/types/wlr_idle.h \
