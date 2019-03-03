@@ -31,7 +31,7 @@ object main {
       l.bitsSize()
     }
 
-    bits.sum / 8
+    -(bits.sum / 8)
   }
 
   @tailrec
