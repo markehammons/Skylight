@@ -7,11 +7,13 @@ import io.github.markehammons.main.bytePointerToString
 import usr.include.stdlib
 import usr.include.wayland.wayland_server_core.wl_listener
 import usr.include.wayland.wayland_server_core_h.{wl_display_add_socket_auto, wl_display_create, wl_display_get_event_loop, wl_display_init_shm}
-import wlroots.backend_h.wlr_backend_autocreate
+import wlroots.backend_h.{wlr_backend_autocreate, wlr_backend_get_renderer}
+import wlroots.wlr_compositor_h.wlr_compositor_create
 import wlroots.wlr_gamma_control_h.wlr_gamma_control_manager_create
 import wlroots.wlr_idle_h.wlr_idle_create
 import wlroots.wlr_primary_selection_v1_h.wlr_primary_selection_v1_device_manager_create
 import wlroots.wlr_screenshooter_h.wlr_screenshooter_create
+import wlroots.wlr_xdg_shell_v6_h.wlr_xdg_shell_v6_create
 
 case class mcw_server(scope: Scope) {
   val wl_display = wl_display_create()
@@ -36,6 +38,11 @@ case class mcw_server(scope: Scope) {
   wlr_primary_selection_v1_device_manager_create(wl_display)
   wlr_idle_create(wl_display)
 
+
+  wlr_xdg_shell_v6_create(wl_display)
+
+  val compositor = wlr_compositor_create(wl_display, wlr_backend_get_renderer(backend))
+  require(!compositor.isNull)
 
   val new_output = scope.allocateStruct(classOf[wl_listener])
 
