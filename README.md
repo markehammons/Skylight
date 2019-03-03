@@ -6,7 +6,7 @@ However, I've also made use of the `foreign` api directly as well, which can be 
 
 ## Dependencies
 
-In order to build and run this project you will need [a build of project panama on jdk 13](https://jdk.java.net/panama/). 
+In order to build and run this project you will need [build ea+44 of project panama on jdk 13](https://jdk.java.net/panama/). 
 You'll also need the wayland development libraries, the wlroots library and development libraries, clang, libpixman's development libraries, and possibly more.
 
 ## Building
