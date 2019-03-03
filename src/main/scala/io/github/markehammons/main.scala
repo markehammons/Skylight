@@ -53,59 +53,6 @@ object main {
     }
   }
 
-  def runTool(name: String, arguments: String*): Either[String,String] = {
-    println(System.getProperty("jextract.debug"))
-    println(arguments.mkString(" "))
-
-    val maybeTool: Option[ToolProvider] = {
-      val _tool = ToolProvider.findFirst(name)
-      if(_tool.isPresent) {
-        Some(_tool.get())
-      } else {
-        None
-      }
-    }
-
-    val result = for(tool <- maybeTool) yield {
-      println(s"running ${tool.name()}")
-      val stdOut = new ByteArrayOutputStream()
-      val errOut = new ByteArrayOutputStream()
-      val code = tool.run(new PrintWriter(System.out), new PrintWriter(System.err), arguments: _*)
-      (code, new String(stdOut.toByteArray), new String(errOut.toByteArray))
-    }
-
-    result
-      .toRight(s"Could not find tool $name in your java development environment")
-      .flatMap{ case (code,ret,err) =>
-        if(ret.contains("Error:") || err.nonEmpty || code != 0) {
-          Left(s"failure with code $code: ${ret + err}")
-        } else {
-          println(s"return value: $ret")
-          println(s"error value: $ret")
-          Right(ret -> "")
-        }
-      }
-      .map(_._1)
-  }
-
-  runTool("jextract",
-    "/usr/include/wlr/types/wlr_output.h",
-    "/usr/include/wlr/backend.h",
-    "/usr/include/wlr/render/wlr_renderer.h",
-    "-m", "/usr/include/wlr/backend=wlroots.backend_headers",
-    "-m", "/usr/include/bits/types=usr.include.type_headers",
-    "-C", "\"-DWLR_USE_UNSTABLE\"",
-    "-I", "/usr/include/wlr",
-    "-I", "/usr/include/wayland/",
-    "-I", "/usr/include/pixman-1/",
-    "-L", "/usr/lib64/",
-    "--record-library-path",
-    "-l", "wlroots",
-    "-t", "wlroots",
-    "-o", "wlroots-test.jar")
-
-
-
   def extractAnonStruct[T,U](t: T)(implicit anonExtractable: HasExtractableEvents[T, U]) = anonExtractable.extractFrom(t)
 
   def wl_signal_add(signal: Pointer[wl_signal], listener: Pointer[wl_listener]) = wl_list_insert(signal.get().listener_list$get().prev$get(), listener.get().link$ptr())
@@ -192,18 +139,6 @@ object main {
     server.new_output.notify$set(scope.allocateCallback(new_output_notify(server, scope)))
     wl_signal_add(extractAnonStruct(server.backend).new_output$ptr(), server.new_output.ptr())
 
-    val socket = bytePointerToString(wl_display_add_socket_auto(server.wl_display))
-    require(socket != "")
-
-    println(s"Running compositor on wayland display $socket")
-
-    stdlib.setenv("WAYLAND_DISPLAY", socket, true)
-
-    wl_display_init_shm(server.wl_display)
-    wlr_gamma_control_manager_create(server.wl_display)
-    wlr_screenshooter_create(server.wl_display)
-    wlr_primary_selection_v1_device_manager_create(server.wl_display)
-    wlr_idle_create(server.wl_display)
 
     if(!wlr_backend_start(server.backend)) {
       System.err.println("failed to start backend!")
