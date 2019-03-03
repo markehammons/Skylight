@@ -3,29 +3,20 @@ package io.github.markehammons
 import java.foreign.layout.Group
 import java.foreign.memory.{LayoutType, Pointer, Struct}
 import java.foreign.{NativeTypes, Scope}
-import java.io.{ByteArrayOutputStream, PrintWriter}
-import java.util.spi.ToolProvider
 
+import io.github.markehammons.implicits._
 import usr.include.wayland.wayland_server_core.{FI5, wl_listener, wl_signal}
-import usr.include.wayland.wayland_server_core_h.{wl_display_add_socket_auto, wl_display_destroy, wl_display_run, wl_display_terminate, wl_display_init_shm}
+import usr.include.wayland.wayland_server_core_h.{wl_display_destroy, wl_display_run, wl_display_terminate}
 import usr.include.wayland.wayland_util.wl_list
 import usr.include.wayland.wayland_util_h.{wl_list_insert, wl_list_length, wl_list_remove}
 import wlroots.backend_h.{wlr_backend_get_renderer, wlr_backend_start}
 import wlroots.wlr_output.{wlr_output, wlr_output_mode}
-import wlroots.wlr_output_h.{wlr_output_make_current, wlr_output_set_mode, wlr_output_create_global}
+import wlroots.wlr_output_h.{wlr_output_create_global, wlr_output_make_current, wlr_output_set_mode}
 import wlroots.wlr_renderer_h.{wlr_renderer_begin, wlr_renderer_clear, wlr_renderer_end}
-import wlroots.wlr_screenshooter_h.wlr_screenshooter_create
-import wlroots.wlr_idle_h.wlr_idle_create
-import wlroots.wlr_primary_selection_v1_h.wlr_primary_selection_v1_device_manager_create
-import wlroots.wlr_gamma_control_h.wlr_gamma_control_manager_create
-
-import scala.collection.JavaConverters._
-import scala.reflect.ClassTag
-import implicits._
-import usr.include.stdint
-import usr.include.stdlib
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.reflect.ClassTag
 
 object main {
   type Listable[T] = {
