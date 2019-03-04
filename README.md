@@ -80,6 +80,7 @@ anonymous struct types from their parent structs. wlr_output_workaround exists f
 
 * I've implemented `wl_signal_add` in my code because it is inlined in the original library. 
 * I've implemented `wl_container_of` in my code because it's a macro in the original wayland library.
+* There are a few api changes from the original tutorial because the wlroots api has changed between version 0.2 (which was used in Drew DeVault's tutorial) and version 0.3. This project targets wlroots version 0.3
 
 
 ## Notes
