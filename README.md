@@ -64,3 +64,5 @@ anonymous struct types from their parent structs. wlr_output_workaround exists f
 In part 3 it shows using gnome-terminal with wayland mcwayface. I could not get gnome-terminal working, but weston-terminal works just fine: 
 
 ![Imgur](https://i.imgur.com/1T03xi5.png)
+
+Also, I've added `wl_display_terminate` to the `output_destroy_notify` callback in order to have the WindowManager close when the display is closed.
