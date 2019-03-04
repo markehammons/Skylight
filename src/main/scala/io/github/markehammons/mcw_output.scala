@@ -7,7 +7,7 @@ import io.github.markehammons.utils.{extractAnonStruct, wl_list_foreach, wl_sign
 import usr.include.wayland.wayland_server_core.{FI5, wl_listener}
 import wlroots.wlr_output.wlr_output
 import usr.include.time_h.clock_gettime
-import usr.include.type_headers.struct_timespec.timespec
+import usr.include.bits.type_headers.struct_timespec.timespec
 import usr.include.bits.time_h.CLOCK_MONOTONIC
 import usr.include.time_h
 import usr.include.wayland.wayland_server.wl_resource

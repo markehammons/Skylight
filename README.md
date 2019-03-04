@@ -7,45 +7,21 @@ However, I've also made use of the `foreign` api directly as well, which can be 
 ## Dependencies
 
 In order to build and run this project you will need [build ea+44 of project panama on jdk 13](https://jdk.java.net/panama/). 
-You'll also need the wayland development libraries, the wlroots library and development libraries, clang, libpixman's development libraries, and possibly more.
+You'll also need the wayland development libraries, the wlroots library and development libraries, clang, libpixman's development libraries, libxkbcommon and possibly others. 
 
 ## Building
 
-In order to build this project, you must first run the following command in the root of this project:
+To build this project, you can run `sbt compile` in the root of the project directory. If the build fails, please check to make sure that these settings in build.sbt
 
-```bash
-jextract /usr/include/wlr/types/wlr_output.h \
- /usr/include/wlr/backend.h \
- /usr/include/wlr/render/wlr_renderer.h \
- /usr/include/wlr/types/wlr_idle.h \
- /usr/include/wlr/types/wlr_gamma_control.h \
- /usr/include/wlr/types/wlr_screenshooter.h \
- /usr/include/wlr/types/wlr_primary_selection_v1.h \
- /usr/include/wlr/types/wlr_xdg_shell_v6.h \ 
- /usr/include/wlr/types/wlr_surface.h \
- /usr/include/wlr/types/wlr_box.h \
- /usr/include/wlr/types/wlr_matrix.h \
- -m /usr/include/wlr/backend=wlroots.backend_headers \
- -m /usr/include/bits/types=usr.include.bits.type_headers \
- -I /usr/include/wlr \
- -I /usr/include/wayland \
- -I /usr/include/pixman-1 \
- -I /usr/include/libxkbcommon \
- -I include/
- -C "-DWLR_USE_UNSTABLE" \
- -L /usr/lib64 \
- --record-library-path \
- -l wlroots \
- -t wlroots \
- -o lib/wlroots.jar
+```scala
+xdgShellProtocolLocation := file("/usr/share/wayland-protocols/unstable/xdg-shell/xdg-shell-unstable-v6.xml")
+
+includeDirectory := file("/usr/include")
+
+libraryDirectory := file("/usr/lib64")
 ```
 
-Then, you can run `sbt run` to activate the demo.
-
-Please note that this command may change depending on your linux distribution. 
-The important part to remember here is that you need to point to the header locations for wlr, wayland,
-pixman, and libxkbcommon with the -I flags, point to the location of the `.so` files with the -L command,
-and specify the specific headers you want to depend on like the first arguments to jextract above.
+point to your xdg-shell-unstable-v6.xml, your include path, and the path that contains the .so files on your system.
 
 ### Note for Part 3
 I had to add the file xdg-shell-unstable-v6-protocol.h from a manual build of wlroots to get this step able to work.
