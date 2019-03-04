@@ -64,7 +64,7 @@ I have implemented the Wayland McWayface part 1 demo as written [here](https://g
   ```
   I've written
   ```scala
-  def output_frame_notify(output: mcw_output): FI5 = (_: Pointer[wl_listener], data: Pointer[_]) => {
+  lazy val output_frame_notify: FI5 = (_: Pointer[wl_listener], data: Pointer[_]) => {
   ```
   because scala has closures and mcw_output would have to become a C struct in order to retrieve it from the listener embedded in it.
 
