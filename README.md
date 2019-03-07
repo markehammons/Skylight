@@ -1,3 +1,11 @@
+# WARNING: THIS VERSION HAS AN UNSTABLE DEPENDENCY
+
+This version depends on a nightly build of project panama. The warning on Aleksey Shipilëv's site applies:
+
+> WARNING: These artifacts are not well-tested, not virus-checked, may contain horrible bugs that could lead to data corruption, engulfing machines in flames, selling your firstborns at eBay, etc. etc. etc. everything that applies for binaries^W code^W anything downloaded from the Internet. Be cautious. If in doubt, build from source yourself, and/or run on staging environment that is not painful to restore.
+
+
+
 # Wayland McWayface (JVM-edition)
 
 This is an implementation of Wayland McWayface [Part 3](https://drewdevault.com/2018/02/28/Writing-a-wayland-compositor-part-3.html) by Drew DeVault. 
@@ -6,7 +14,7 @@ However, I've also made use of the `foreign` api directly as well, which can be 
 
 ## Dependencies
 
-In order to build and run this project you will need [build ea+44 of project panama on jdk 13](https://jdk.java.net/panama/). 
+In order to build and run this project you will need [the nightly build of project panama from Aleksey Shipilëv's build server](https://builds.shipilev.net/openjdk-panama/). 
 You'll also need the wayland development libraries, the wlroots library and development libraries, clang, libpixman's development libraries, libxkbcommon and possibly others. 
 
 ## Building

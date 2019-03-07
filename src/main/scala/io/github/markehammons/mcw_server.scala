@@ -18,8 +18,6 @@ import wlroots.wlr_primary_selection_v1_h.wlr_primary_selection_v1_device_manage
 import wlroots.wlr_screenshooter_h.wlr_screenshooter_create
 import wlroots.wlr_xdg_shell_v6_h.wlr_xdg_shell_v6_create
 
-import implicits._
-
 case class mcw_server(scope: Scope) {
   val wl_display = wl_display_create()
   require(!wl_display.isNull)
@@ -52,7 +50,7 @@ case class mcw_server(scope: Scope) {
   val new_output = scope.allocateStruct(classOf[wl_listener])
 
   new_output.notify$set(scope.allocateCallback[FI5](new_output_notify))
-  wl_signal_add(extractAnonStruct(backend).new_output$ptr(), new_output.ptr())
+  wl_signal_add(backend.get().events$get().new_output$ptr(), new_output.ptr())
 
   lazy val new_output_notify: FI5 = (_: Pointer[wl_listener], data: Pointer[_]) => {
     val wlr_output = data.cast(LayoutType.ofStruct(classOf[wlr_output]))

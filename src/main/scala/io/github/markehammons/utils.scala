@@ -50,9 +50,7 @@ object utils {
   }
 
   def wl_list_foreach[T <: Struct[T] with Listable[T]: ClassTag](start: wl_list)(fn: T => Unit): Unit = wl_list_foreach(start.ptr())(fn)
-
-  def extractAnonStruct[T,U](t: T)(implicit anonExtractable: HasExtractableEvents[T, U]) = anonExtractable.extractFrom(t)
-
+  
   def wl_signal_add(signal: Pointer[wl_signal], listener: Pointer[wl_listener]) = wl_list_insert(signal.get().listener_list$get().prev$get(), listener.get().link$ptr())
 
   def wl_container_of[T <: Listable[T] with Struct[T]](listItem: wl_list)(implicit classTag: ClassTag[T]): Pointer[T] = {

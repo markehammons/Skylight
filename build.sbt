@@ -1,8 +1,6 @@
+import java.io.{ByteArrayOutputStream, PrintWriter}
 import java.util.spi.ToolProvider
-import java.io.{ByteArrayOutputStream, InputStream, OutputStream, PrintWriter}
-import java.lang.{System => JavaSystem}
 
-import scala.sys.process.ProcessIO
 
 name := "Wayland McWayface (JVM-edition)"
 
@@ -10,9 +8,10 @@ version := "0.1"
 
 scalaVersion := "2.12.8"
 
-libraryDependencies += "org.scala-lang.modules" %% "scala-java8-compat" % "0.9.0"
+libraryDependencies += ("org.scala-lang.modules" %% "scala-java8-compat" % "0.9.0").withDottyCompat(scalaVersion.value)
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+libraryDependencies += ("org.scalatest" %% "scalatest" % "3.0.5" % "test").withDottyCompat(scalaVersion.value)
+
 
 fork := true
 
@@ -146,7 +145,7 @@ jextract := {
 
   val IPaths = (includePaths.value + xdgProtocolGen.value).toSeq.flatMap(f => Seq("-I", f.getCanonicalPath))
   val LPaths = libraryPaths.value.toSeq.flatMap(f => Seq("-L", f.getCanonicalPath))
-  val mappings = packageMappings.value.toSeq.flatMap{ case (loc, pack) => Seq("-m", s"${loc.getCanonicalPath}=$pack")}
+  val mappings = packageMappings.value.toSeq.flatMap{ case (loc, pack) => Seq("--package-map", s"${loc.getCanonicalPath}=$pack")}
   val clangOpts = clangOptions.value.toSeq.flatMap(opt => Seq("-C", opt))
   val headerList = headers.value.toSeq.map(_.getCanonicalPath)
   val command = headerList ++ mappings ++ IPaths ++ clangOpts ++ LPaths ++
