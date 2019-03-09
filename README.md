@@ -6,9 +6,11 @@ This version depends on a nightly build of project panama. The warning on Alekse
 
 
 
-# Wayland McWayface (JVM-edition)
+# Skylight WM
 
-This is an implementation of Wayland McWayface [Part 3](https://drewdevault.com/2018/02/28/Writing-a-wayland-compositor-part-3.html) by Drew DeVault. 
+This is a tutorial window manager in scala based on Wayland McWayface 
+[Part 3](https://drewdevault.com/2018/02/28/Writing-a-wayland-compositor-part-3.html) and 
+[tinyWL](https://github.com/swaywm/wlroots/tree/master/tinywl) by Drew DeVault. 
 In order to have bindings of wlroots and wayland within java, I've made use of the jextract utility provided by project panama. 
 However, I've also made use of the `foreign` api directly as well, which can be seen in `usr.include.stdlib` in the scala sources.
 

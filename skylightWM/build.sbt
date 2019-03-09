@@ -2,7 +2,7 @@ import java.io.{ByteArrayOutputStream, PrintWriter}
 import java.util.spi.ToolProvider
 
 
-name := "Wayland McWayface (JVM-edition)"
+name := "SkylightWM"
 
 version := "0.1"
 
