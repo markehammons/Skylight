@@ -1,5 +1,5 @@
-import java.io.{ByteArrayOutputStream, PrintWriter}
-import java.util.spi.ToolProvider
+//import java.io.{ByteArrayOutputStream, PrintWriter}
+//import java.util.spi.ToolProvider
 
 
 name := "Wayland McWayface (JVM-edition)"
@@ -65,37 +65,37 @@ outputLibraryName := "wlroots.jar"
 //below is coding for jextract to be run by SBT and configuration to be done within sbt
 
 //this allows me to run jextract from within sbt
-def runTool(name: String, arguments: String*): Either[String,(String,String)] = {
-  val maybeTool: Option[ToolProvider] = {
-    val _tool = ToolProvider.findFirst(name)
-    if(_tool.isPresent) {
-      Some(_tool.get())
-    } else {
-      None
-    }
-  }
-
-  val result = for(tool <- maybeTool) yield {
-    val stdOut = new ByteArrayOutputStream()
-    val errOut = new ByteArrayOutputStream()
-    val stdWriter = new PrintWriter(stdOut)
-    val errWriter = new PrintWriter(errOut)
-    val code = tool.run(stdWriter, errWriter, arguments: _*)
-    stdWriter.close()
-    errWriter.close()
-    (code, new String(stdOut.toByteArray), new String(errOut.toByteArray))
-  }
-
-  result
-    .toRight(s"Could not find tool $name in your java development environment")
-    .flatMap{ case (code,ret,err) =>
-      if(code != 0) {
-        Left(s"failure with code $code: ${ret + err}")
-      } else {
-        Right(ret -> err)
-      }
-    }
-}
+//def runTool(name: String, arguments: String*): Either[String,(String,String)] = {
+//  val maybeTool: Option[ToolProvider] = {
+//    val _tool = ToolProvider.findFirst(name)
+//    if(_tool.isPresent) {
+//      Some(_tool.get())
+//    } else {
+//      None
+//    }
+//  }
+//
+//  val result = for(tool <- maybeTool) yield {
+//    val stdOut = new ByteArrayOutputStream()
+//    val errOut = new ByteArrayOutputStream()
+//    val stdWriter = new PrintWriter(stdOut)
+//    val errWriter = new PrintWriter(errOut)
+//    val code = tool.run(stdWriter, errWriter, arguments: _*)
+//    stdWriter.close()
+//    errWriter.close()
+//    (code, new String(stdOut.toByteArray), new String(errOut.toByteArray))
+//  }
+//
+//  result
+//    .toRight(s"Could not find tool $name in your java development environment")
+//    .flatMap{ case (code,ret,err) =>
+//      if(code != 0) {
+//        Left(s"failure with code $code: ${ret + err}")
+//      } else {
+//        Right(ret -> err)
+//      }
+//    }
+//}
 
 lazy val includeDirectory = settingKey[File]("location of your system's default include directory")
 lazy val headers = settingKey[Set[File]]("header files to pass to jextract")
@@ -133,30 +133,30 @@ xdgProtocolGen := {
 
 
 
-jextract := {
-  val logger = streams.value
+//jextract := {
+//  val logger = streams.value
+//
+//  val outputFile = unmanagedBase.value / s"${outputLibraryName.value}"
+//
+//  if(outputFile.exists()) {
+//    logger.log.warn("deleting already generated binding")
+//    IO.delete(outputFile)
+//  }
+//
+//  val IPaths = (includePaths.value + xdgProtocolGen.value).toSeq.flatMap(f => Seq("-I", f.getCanonicalPath))
+//  val LPaths = libraryPaths.value.toSeq.flatMap(f => Seq("-L", f.getCanonicalPath))
+//  val mappings = packageMappings.value.toSeq.flatMap{ case (loc, pack) => Seq("--package-map", s"${loc.getCanonicalPath}=$pack")}
+//  val clangOpts = clangOptions.value.toSeq.flatMap(opt => Seq("-C", opt))
+//  val headerList = headers.value.toSeq.map(_.getCanonicalPath)
+//  val command = headerList ++ mappings ++ IPaths ++ clangOpts ++ LPaths ++
+//    Seq("--record-library-path", "-l", library.value, "-t", libraryPackage.value, "-o", outputFile.getCanonicalPath)
+//
+//  logger.log.info(s"issuing command jextract ${command.mkString(" ")}")
+//
+//  runTool("jextract", command: _*).fold(sys.error, { case (out,err) =>
+//    logger.log.warn(err)
+//    logger.log.info(out)
+//  })
+//}
 
-  val outputFile = unmanagedBase.value / s"${outputLibraryName.value}"
-
-  if(outputFile.exists()) {
-    logger.log.warn("deleting already generated binding")
-    IO.delete(outputFile)
-  }
-
-  val IPaths = (includePaths.value + xdgProtocolGen.value).toSeq.flatMap(f => Seq("-I", f.getCanonicalPath))
-  val LPaths = libraryPaths.value.toSeq.flatMap(f => Seq("-L", f.getCanonicalPath))
-  val mappings = packageMappings.value.toSeq.flatMap{ case (loc, pack) => Seq("--package-map", s"${loc.getCanonicalPath}=$pack")}
-  val clangOpts = clangOptions.value.toSeq.flatMap(opt => Seq("-C", opt))
-  val headerList = headers.value.toSeq.map(_.getCanonicalPath)
-  val command = headerList ++ mappings ++ IPaths ++ clangOpts ++ LPaths ++
-    Seq("--record-library-path", "-l", library.value, "-t", libraryPackage.value, "-o", outputFile.getCanonicalPath)
-
-  logger.log.info(s"issuing command jextract ${command.mkString(" ")}")
-
-  runTool("jextract", command: _*).fold(sys.error, { case (out,err) =>
-    logger.log.warn(err)
-    logger.log.info(out)
-  })
-}
-
-(Compile / compile) := (Compile / compile).dependsOn(jextract).value
+//(Compile / compile) := (Compile / compile).dependsOn(jextract).value
