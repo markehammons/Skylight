@@ -12,7 +12,7 @@ The following will be required as well: the wayland development libraries, the w
 ## Building
 
 To build this project, run `sbt compile` in the root of the project directory. 
-If the build fails, please check to make sure that the following settings are in build.sbt
+If the build fails, Please check to make sure the following settings in build.sbt point to your xdg-shell-unstable-v6.xml, your include path, and the path that contains the .so files on your system.
 ```scala
 xdgShellProtocolLocation := file("/usr/share/wayland-protocols/unstable/xdg-shell/xdg-shell-unstable-v6.xml")
 
@@ -20,13 +20,6 @@ includeDirectory := file("/usr/include")
 
 libraryDirectory := file("/usr/lib64")
 ```
-
-point to your xdg-shell-unstable-v6.xml, your include path, and the path that contains the .so files on your system.
-
-### Note for Part 3
-The file, xdg-shell-unstable-v6-protocol.h, from a manual build of wlroots was necessary for this step to function correctly.
-My distribution's wlroots-devel package does not contain this file despite the wlr_xdg_shell_v6.h header and depending
-on this protocol.
 
 ## Implementation
 
