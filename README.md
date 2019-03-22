@@ -2,17 +2,17 @@
 
 This is an implementation of Wayland McWayface [Part 3](https://drewdevault.com/2018/02/28/Writing-a-wayland-compositor-part-3.html) by Drew DeVault. 
 In order to have bindings of wlroots and wayland within java, I've made use of the jextract utility provided by project panama. 
-However, I've also made use of the `foreign` api directly as well, which can be seen in `usr.include.stdlib` in the scala sources.
+I've also made use of the `foreign` api directly which can be seen in `usr.include.stdlib` in the scala sources.
 
 ## Dependencies
 
-In order to build and run this project you will need [build ea+44 of project panama on jdk 13](https://jdk.java.net/panama/). 
-You'll also need the wayland development libraries, the wlroots library and development libraries, clang, libpixman's development libraries, libxkbcommon and possibly others. 
+To build and run this project, you will require [build ea+44 of project panama on jdk 13](https://jdk.java.net/panama/).
+The following will be required as well: the wayland development libraries, the wlroots library and development libraries, clang, libpixman's development libraries, libxkbcommon and possibly others. 
 
 ## Building
 
-To build this project, you can run `sbt compile` in the root of the project directory. If the build fails, please check to make sure that these settings in build.sbt
-
+To build this project, run `sbt compile` in the root of the project directory. 
+If the build fails, please check to make sure that the following settings are in build.sbt
 ```scala
 xdgShellProtocolLocation := file("/usr/share/wayland-protocols/unstable/xdg-shell/xdg-shell-unstable-v6.xml")
 
@@ -24,13 +24,13 @@ libraryDirectory := file("/usr/lib64")
 point to your xdg-shell-unstable-v6.xml, your include path, and the path that contains the .so files on your system.
 
 ### Note for Part 3
-I had to add the file xdg-shell-unstable-v6-protocol.h from a manual build of wlroots to get this step able to work.
-My distribution's wlroots-devel package does not contain this file, despite the wlr_xdg_shell_v6.h header and depending
-on this protocol
+The file, xdg-shell-unstable-v6-protocol.h, from a manual build of wlroots was necessary for this step to function correctly.
+My distribution's wlroots-devel package does not contain this file despite the wlr_xdg_shell_v6.h header and depending
+on this protocol.
 
 ## Implementation
 
-I have implemented the Wayland McWayface part 1 demo as written [here](https://github.com/ddevault/mcwayface/blob/f89092e7d38e43c55583098beadde26b3d1235eb/src/main.c) for the most part. Below are the list of changes I've made...
+I have implemented the Wayland McWayface part 1 demo as written [here](https://github.com/ddevault/mcwayface/blob/f89092e7d38e43c55583098beadde26b3d1235eb/src/main.c) for the most part. Below are the list of changes I have made.
 
 
 * I did not use `wl_container_of` in a few places where the original demo did. Instead of 
@@ -49,7 +49,7 @@ I have implemented the Wayland McWayface part 1 demo as written [here](https://g
 * I use constructors for `mcw_server` and `mcw_output` instead of treating them as structs.
 
 * Because of an issue with the bytecode emitted with jextract, some anonymous struct bindings are not comprehensible to scala
-(such as `wlroots.backend.anon$backend_h$444`). Because of this I've created java classes to handle the extraction of these 
+(such as `wlroots.backend.anon$backend_h$444`). Because of this, I've created java classes to handle the extraction of these 
 anonymous struct types from their parent structs. wlr_output_workaround exists for much the same reason.
 
   I should be able to remove these workarounds in a future version of project panama's jdk builds 
