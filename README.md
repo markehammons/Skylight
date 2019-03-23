@@ -1,17 +1,17 @@
 # Wayland McWayface (JVM-edition)
 
-This is an implementation of Wayland McWayface [Part 3](https://drewdevault.com/2018/02/28/Writing-a-wayland-compositor-part-3.html) by Drew DeVault. 
-In order to have bindings of wlroots and wayland within java, I've made use of the jextract utility provided by project panama. 
-However, I've also made use of the `foreign` api directly as well, which can be seen in `usr.include.stdlib` in the scala sources.
+Skylight is an implementation of Wayland McWayface [Part 3](https://drewdevault.com/2018/02/28/Writing-a-wayland-compositor-part-3.html) by Drew DeVault. 
+In order to have bindings of wlroots and wayland within java, the use of the jextract utility provided by project panama has been enabled. 
+The `foreign` api is also enabled and can be seen in `usr.include.stdlib` in the scala sources.
 
 ## Dependencies
 
-In order to build and run this project you will need [build ea+44 of project panama on jdk 13](https://jdk.java.net/panama/). 
-You'll also need the wayland development libraries, the wlroots library and development libraries, clang, libpixman's development libraries, libxkbcommon and possibly others. 
+Building and running this project requires [build ea+44 of project panama on jdk 13](https://jdk.java.net/panama/)
+as well as the wayland development libraries, the wlroots library and development libraries, clang, libpixman's development libraries, libxkbcommon and possibly others. 
 
 ## Building
 
-To build this project, you can run `sbt compile` in the root of the project directory. If the build fails, please check to make sure that these settings in build.sbt
+To build this project run `sbt compile` in the root of the project directory. If the build fails, please check to make sure that these settings in build.sbt
 
 ```scala
 xdgShellProtocolLocation := file("/usr/share/wayland-protocols/unstable/xdg-shell/xdg-shell-unstable-v6.xml")
@@ -21,11 +21,11 @@ includeDirectory := file("/usr/include")
 libraryDirectory := file("/usr/lib64")
 ```
 
-point to your xdg-shell-unstable-v6.xml, your include path, and the path that contains the .so files on your system.
+point to your xdg-shell-unstable-v6.xml, include path, and the path that contains the .so files on the system.
 
 ### Note for Part 3
-I had to add the file xdg-shell-unstable-v6-protocol.h from a manual build of wlroots to get this step able to work.
-My distribution's wlroots-devel package does not contain this file, despite the wlr_xdg_shell_v6.h header and depending
+The file xdg-shell-unstable-v6-protocol.h has been added from a manual build of wlroots to make this step functional.
+This distribution's wlroots-devel package does not contain this file, despite the wlr_xdg_shell_v6.h header and depending
 on this protocol
 
 ## Implementation
