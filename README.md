@@ -1,10 +1,14 @@
 # Wayland McWayface (JVM-edition)
 
-Repository contains implementation of Wayland McWayface [Part 3](https://drewdevault.com/2018/02/28/Writing-a-wayland-compositor-part-3.html) by Drew DeVault. Jextract utility provided by project panama and `foreign` api are used directly for including bindings of wlroots and wayland within java. The `foreign` api can be seen in `usr.include.stdlib` in the scala sources.
+Repository contains implementation of Wayland McWayface [Part 3](https://drewdevault.com/2018/02/28/Writing-a-wayland-compositor-part-3.html) by Drew DeVault. 
+Jextract utility provided by project panama and `foreign` api are used directly for including bindings of wlroots and wayland within java. 
+The `foreign` api can be seen in `usr.include.stdlib` in the scala sources.
 
 ## Dependencies
 
-[build ea+44 of project panama on jdk 13](https://jdk.java.net/panama/) is required to build and run the project. The wayland development libraries, the wlroots library and development libraries, clang, libpixman's development libraries, libxkbcommon are also needed for the project to build and run. Additional libraries maybe required.
+[build ea+44 of project panama on jdk 13](https://jdk.java.net/panama/) is required to build and run the project. 
+The wayland development libraries, the wlroots library and development libraries, clang, libpixman's development libraries, libxkbcommon are also needed for the project to build and run. 
+Additional libraries maybe required.
 
 ## Building
 
@@ -12,6 +16,9 @@ Run `sbt compile` in the root of the project directory to build the project.
 
 Check the following settings in build.sbt if build fails:
 
+This is an implementation of Wayland McWayface [Part 3](https://drewdevault.com/2018/02/28/Writing-a-wayland-compositor-part-3.html) by Drew DeVault. 
+In order to have bindings of wlroots and wayland within java, I've made use of the jextract utility provided by project panama. 
+I've also made use of the `foreign` api directly which can be seen in `usr.include.stdlib` in the scala sources.
 ```scala
 xdgShellProtocolLocation := file("/usr/share/wayland-protocols/unstable/xdg-shell/xdg-shell-unstable-v6.xml")
 
@@ -19,15 +26,16 @@ includeDirectory := file("/usr/include")
 
 libraryDirectory := file("/usr/lib64")
 ```
-Settings in build.sbt should point to xdg-shell-unstable-v6.xml, include path, and the path that contains the .so files on your system.
 
 ### Note for Part 3
 
-File xdg-shell-unstable-v6-protocol.h is added from a manual build of wlroots to execute part 3. My distribution's wlroots-devel package does not contain this file, despite the wlr_xdg_shell_v6.h header and depending on this protocol.
+File xdg-shell-unstable-v6-protocol.h is added from a manual build of wlroots to execute part 3. 
+My distribution's wlroots-devel package does not contain this file, despite the wlr_xdg_shell_v6.h header and depending on this protocol.
 
 ## Implementation
 
-Much of Wayland McWayface part 1 demo is written according to McWayface [repository](https://github.com/ddevault/mcwayface/blob/f89092e7d38e43c55583098beadde26b3d1235eb/src/main.c). Below are the list of changes:
+Much of Wayland McWayface part 1 demo is written according to McWayface [repository](https://github.com/ddevault/mcwayface/blob/f89092e7d38e43c55583098beadde26b3d1235eb/src/main.c). 
+Below are the list of changes:
 
 * `wl_container_of` is not used in some places where the original demo uses it. The following implementation...
   ```c
@@ -44,7 +52,8 @@ Much of Wayland McWayface part 1 demo is written according to McWayface [reposit
 
 * `mcw_server` and `mcw_output` are implemented as constructor instead of structs.
 
-* Some anonymous struct bindings are not comprehensible to scala because of an issue with the bytecode emitted with jextract (such as `wlroots.backend.anon$backend_h$444`). Java classes are created to handle the extraction of anonymous struct types from parent structs. wlr_output_workaround exists fo the same reason.
+* Some anonymous struct bindings are not comprehensible to scala because of an issue with the bytecode emitted with jextract (such as `wlroots.backend.anon$backend_h$444`). 
+Java classes are created to handle the extraction of anonymous struct types from parent structs. wlr_output_workaround exists fo the same reason.
 
   These workarounds will be removed in a future version of project panama's jdk builds 
 
