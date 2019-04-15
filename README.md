@@ -53,7 +53,7 @@ Below are the list of changes:
 * `mcw_server` and `mcw_output` are implemented as constructor instead of structs.
 
 * Some anonymous struct bindings are not comprehensible to scala because of an issue with the bytecode emitted with jextract (such as `wlroots.backend.anon$backend_h$444`). 
-Java classes are created to handle the extraction of anonymous struct types from parent structs. wlr_output_workaround exists fo the same reason.
+Java classes are created to handle the extraction of anonymous struct types from parent structs. wlr_output_workaround exists for the same reason.
 
   These workarounds will be removed in a future version of project panama's jdk builds 
 
