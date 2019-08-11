@@ -4,14 +4,14 @@ import java.foreign.layout.Group
 import java.foreign.memory.{LayoutType, Pointer, Struct}
 import java.foreign.{NativeTypes, Scope}
 
-import usr.include.wayland.wayland_server_core.{FI5, wl_listener, wl_signal}
-import usr.include.wayland.wayland_server_core_h.{wl_display_destroy, wl_display_run, wl_display_terminate}
-import usr.include.wayland.wayland_util.wl_list
-import usr.include.wayland.wayland_util_h.{wl_list_insert, wl_list_length, wl_list_remove}
-import wlroots.backend_h.{wlr_backend_get_renderer, wlr_backend_start}
-import wlroots.wlr_output.{wlr_output, wlr_output_mode}
-import wlroots.wlr_output_h.{wlr_output_make_current, wlr_output_set_mode}
-import wlroots.wlr_renderer_h.{wlr_renderer_begin, wlr_renderer_clear, wlr_renderer_end}
+import usr.include.wayland.wayland_server_core_h.{FI5, wl_listener, wl_signal}
+import usr.include.wayland.wayland_server_core_lib.{wl_display_destroy, wl_display_run, wl_display_terminate}
+import usr.include.wayland.wayland_util_h.wl_list
+import usr.include.wayland.wayland_util_lib.{wl_list_insert, wl_list_length, wl_list_remove}
+import wlroots.backend_lib.{wlr_backend_get_renderer, wlr_backend_start}
+import wlroots.wlr_output_h.{wlr_output, wlr_output_mode}
+import wlroots.wlr_output_lib.{wlr_output_attach_render, wlr_output_set_mode}
+import wlroots.wlr_renderer_lib.{wlr_renderer_begin, wlr_renderer_clear, wlr_renderer_end}
 
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
@@ -71,7 +71,7 @@ object main {
     // End pretty color calculation
 
 
-    wlr_output_make_current(wlr_output, Pointer.ofNull())
+    wlr_output_attach_render(wlr_output, Pointer.ofNull())
     wlr_renderer_begin(renderer, wlr_output.get().width$get(), wlr_output.get().height$get())
 
     wlr_renderer_clear(renderer, output.color.elementPointer())
@@ -108,6 +108,7 @@ object main {
 
 
   def main(args: Array[String]) = {
+    println("started")
     val scope = Scope.globalScope()
 
     val server = mcw_server(scope)
