@@ -1,0 +1,8 @@
+*.class
+.idea
+.idea_modules
+*.h
+**/lib/*
+project/*
+target/*
+out/*
