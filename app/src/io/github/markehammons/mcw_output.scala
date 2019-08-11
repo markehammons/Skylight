@@ -2,12 +2,12 @@ package io.github.markehammons
 
 import java.foreign.{NativeTypes, Scope}
 
-import usr.include.wayland.wayland_server_core.wl_listener
-import wlroots.wlr_output.wlr_output
+import usr.include.wayland.wayland_server_core_h.wl_listener
+import wlroots.wlr_output_h.wlr_output
 
 case class mcw_output(output: wlr_output, server: mcw_server, scope: Scope) {
   var last_frame = System.currentTimeMillis()
-  val color = scope.allocateArray(NativeTypes.FLOAT, 4)
+  val color = scope.allocateArray(NativeTypes.FLOAT, 4l)
 
   color.set(0,1.0f)
   color.set(3,1.0f)
