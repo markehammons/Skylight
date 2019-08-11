@@ -4,9 +4,9 @@ import java.foreign.NativeTypes
 import java.foreign.layout.Group
 import java.foreign.memory.{LayoutType, Pointer, Struct}
 
-import usr.include.wayland.wayland_server_core.{wl_listener, wl_signal}
-import usr.include.wayland.wayland_util.wl_list
-import usr.include.wayland.wayland_util_h.wl_list_insert
+import usr.include.wayland.wayland_server_core_h.{wl_listener, wl_signal}
+import usr.include.wayland.wayland_util_h.wl_list
+import usr.include.wayland.wayland_util_lib.wl_list_insert
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag

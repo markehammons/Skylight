@@ -4,22 +4,22 @@ import java.foreign.memory.{LayoutType, Pointer}
 import java.foreign.{NativeTypes, Scope}
 
 import io.github.markehammons.utils.{wl_list_foreach, wl_signal_add}
-import usr.include.wayland.wayland_server_core.{FI5, wl_listener}
-import wlroots.wlr_output.wlr_output
-import usr.include.time_h.clock_gettime
-import usr.include.bits.type_headers.struct_timespec.timespec
-import usr.include.bits.time_h.CLOCK_MONOTONIC
-import usr.include.time_h
-import usr.include.wayland.wayland_server.wl_resource
-import usr.include.wayland.wayland_server_core_h.wl_display_terminate
-import usr.include.wayland.wayland_util_h.wl_list_remove
-import wlroots.backend_h.wlr_backend_get_renderer
-import wlroots.wlr_box.wlr_box
-import wlroots.wlr_matrix_h
-import wlroots.wlr_matrix_h.wlr_matrix_project_box
-import wlroots.wlr_output_h.{wlr_output_make_current, wlr_output_swap_buffers}
-import wlroots.wlr_renderer_h.{wlr_render_texture_with_matrix, wlr_renderer_begin, wlr_renderer_clear, wlr_renderer_end}
-import wlroots.wlr_surface_h.{wlr_surface_from_resource, wlr_surface_get_texture, wlr_surface_has_buffer, wlr_surface_send_frame_done}
+import usr.include.wayland.wayland_server_core_h.{FI5, wl_listener}
+import wlroots.wlr_output_h.wlr_output
+import usr.include.time_lib.clock_gettime
+import usr.include.bits.type_headers.struct_timespec_h.timespec
+import usr.include.bits.time_lib.CLOCK_MONOTONIC
+import usr.include.time_lib
+import usr.include.wayland.wayland_server_h.wl_resource
+import usr.include.wayland.wayland_server_core_lib.wl_display_terminate
+import usr.include.wayland.wayland_util_lib.wl_list_remove
+import wlroots.backend_lib.wlr_backend_get_renderer
+import wlroots.wlr_box_h.wlr_box
+import wlroots.wlr_matrix_lib
+import wlroots.wlr_matrix_lib.wlr_matrix_project_box
+import wlroots.wlr_output_lib.{wlr_output_attach_render, wlr_output_commit}
+import wlroots.wlr_renderer_lib.{wlr_render_texture_with_matrix, wlr_renderer_begin, wlr_renderer_clear, wlr_renderer_end}
+import wlroots.wlr_surface_lib.{wlr_surface_from_resource, wlr_surface_get_texture, wlr_surface_has_buffer, wlr_surface_send_frame_done}
 
 case class mcw_output(output: wlr_output, server: mcw_server, scope: Scope) {
   val last_frame = scope.allocateStruct(classOf[timespec])
@@ -51,18 +51,18 @@ case class mcw_output(output: wlr_output, server: mcw_server, scope: Scope) {
       wlr_output.get().backend$get())
 
 
-    val timeScope = time_h.scope().fork()
+    val timeScope = time_lib.scope().fork()
     val now = timeScope.allocateStruct(classOf[timespec])
-    time_h.clock_gettime(CLOCK_MONOTONIC, now.ptr())
+    clock_gettime(CLOCK_MONOTONIC, now.ptr())
 
-    wlr_output_make_current(wlr_output, Pointer.ofNull())
+    wlr_output_attach_render(wlr_output, Pointer.ofNull())
     wlr_renderer_begin(renderer, wlr_output.get().width$get(), wlr_output.get().height$get())
 
     wlr_renderer_clear(renderer, color.elementPointer())
 
 
     wl_list_foreach[wl_resource](server.compositor.get().surface_resources$get) { resource =>
-      val scope = wlr_matrix_h.scope().fork()
+      val scope = wlr_matrix_lib.scope().fork()
       val surface = wlr_surface_from_resource(resource.ptr())
 
 
@@ -84,7 +84,7 @@ case class mcw_output(output: wlr_output, server: mcw_server, scope: Scope) {
       }
     }
 
-    wlr_output_swap_buffers(wlr_output, Pointer.ofNull(), Pointer.ofNull())
+    wlr_output_commit(wlr_output)
     wlr_renderer_end(renderer)
 
     last_frame.tv_sec$set(now.tv_sec$get())
