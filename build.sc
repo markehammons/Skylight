@@ -1,11 +1,14 @@
 import java.io.{ByteArrayOutputStream, PrintWriter}
 import java.util.spi.ToolProvider
 
+
+//import $ivy.`ch.epfl.lamp:dotty-language-server_0.17:0.17.0-bin-20190711-e2130b9-NIGHTLY`
 import app.millSourcePath
 import mill._
 import mill.api.Loose
 import mill.define.Target
 import mill.scalalib._
+import dotty.tools.languageserver.config.ProjectConfig
 
 object javahelp extends JavaModule {
     def library = "wlroots"
