@@ -21,6 +21,11 @@ import wlroots.wlr_output_lib.{wlr_output_attach_render, wlr_output_commit}
 import wlroots.wlr_renderer_lib.{wlr_render_texture_with_matrix, wlr_renderer_begin, wlr_renderer_clear, wlr_renderer_end}
 import wlroots.wlr_surface_lib.{wlr_surface_from_resource, wlr_surface_get_texture, wlr_surface_has_buffer, wlr_surface_send_frame_done}
 
+import utils.given
+import utils.foreach
+import org.freedesktop.wayland.WlList
+import org.swaywm.wlroots.WlrOutputP.given
+
 case class mcw_output(output: wlr_output, server: mcw_server)(given Scope)
   given (given scope: Scope): Scope = 
     println("forking new scope")
@@ -59,14 +64,15 @@ case class mcw_output(output: wlr_output, server: mcw_server)(given Scope)
     val now = timeScope.allocateStruct(classOf[timespec])
     clock_gettime(CLOCK_MONOTONIC, now.ptr())
 
-    wlr_output_attach_render(wlr_output, Pointer.ofNull())
+    wlr_output.attachRender(Pointer.ofNull)
     wlr_renderer_begin(renderer, wlr_output.get().width$get(), wlr_output.get().height$get())
 
     wlr_renderer_clear(renderer, color.elementPointer())
 
     println(s"last frame at ${last_frame.tv_sec$get}s ${last_frame.tv_nsec$get}ns")
 
-    wl_list_foreach[wl_resource](server.compositor.get().surface_resources$get){ resource =>
+    val list = WlList[wl_resource](server.compositor.get.surface_resources$ptr)
+    val listFn = (resource: wl_resource) => {
       val scope = wlr_matrix_lib.scope().fork()
       val surface = wlr_surface_from_resource(resource.ptr())
 
@@ -87,8 +93,9 @@ case class mcw_output(output: wlr_output, server: mcw_server)(given Scope)
         wlr_surface_send_frame_done(surface, last_frame.ptr())
         scope.close()
     }
+    list.foreach(listFn)
 
-    wlr_output_commit(wlr_output)
+    wlr_output.commit()
     wlr_renderer_end(renderer)
 
     last_frame.tv_sec$set(now.tv_sec$get())

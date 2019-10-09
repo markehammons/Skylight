@@ -4,7 +4,7 @@
 *.h
 **/lib/*
 project/*
-target/*
+**/target/*
 out/*
 .dotty-ide-artifact
 .dotty-ide.json

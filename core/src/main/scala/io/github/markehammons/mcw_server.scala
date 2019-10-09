@@ -19,6 +19,10 @@ import wlroots.wlr_primary_selection_v1_lib.wlr_primary_selection_v1_device_mana
 import wlroots.wlr_screencopy_v1_lib.wlr_screencopy_manager_v1_create
 import wlroots.wlr_xdg_shell_v6_lib.wlr_xdg_shell_v6_create
 
+import org.swaywm.wlroots.WlrOutputP.given
+import org.swaywm.wlroots.WlrOutput.given
+import org.freedesktop.wayland.WlList
+
 type WlDisplay = Pointer[wl_display]
 
 object WlDisplay
@@ -69,14 +73,15 @@ class mcw_server(given Scope)
   lazy val new_output_notify: FI5 = (_: Pointer[wl_listener], data: Pointer[_]) => {
     val wlr_output = data.cast(LayoutType.ofStruct(classOf[wlr_output]))
 
-    if(wl_list_length(wlr_output.get().modes$ptr()) > 0)
-      val mode =
-        wl_container_of[wlr_output_mode](wlr_output.get().modes$get().prev$get().get())
-      wlr_output_set_mode(wlr_output, mode)
+    val modeList = wlr_output.get.modes
+    if(modeList.length() > 0)
+      // val mode =
+      //   wl_container_of[wlr_output_mode](wlr_output.get().modes$get().prev$get().get())
+      wlr_output.setMode(modeList.last())
 
     outputs += mcw_output(wlr_output.get(), this)
 
-    wlr_output_create_global(wlr_output)
+    wlr_output.createGlobal()
   }
 
   def removeOutput(output: mcw_output) =

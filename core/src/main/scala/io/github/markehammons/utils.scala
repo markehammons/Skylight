@@ -16,9 +16,11 @@ import usr.include.wayland.wayland_server_h.wl_resource
 
 import scala.collection.JavaConverters._
 
+import scala.reflect.Selectable.given
+
 object utils
   type Pointable[T] = {
-    def ptr(): Pointer[T]
+    val ptr: Pointer[T]
   }
 
 
@@ -27,7 +29,9 @@ object utils
     def link$ptr(): Pointer[wl_list]
   }
 
+  // val r: Pointable[wl_list] = ???
 
+  // r.ptr
 
   // trait CanTreatLikeList[T <: Struct[T]](offset: Long)
   //   def foreach(fn: T => Unit, start: Pointer[wl_list]): Unit =
@@ -35,17 +39,38 @@ object utils
   //     def helper(cur: Pointer[wl_list]): Unit =
   //       if(cur != start)
 
-  trait Contained[T <: Struct[T],U <: Struct[U]](field: String)(given ct: ClassTag[U]) {
+  trait Contained[T <: Struct[T],U <: Struct[U]](field: String)(given ct: ClassTag[U])
     val clazz = ct.runtimeClass.asInstanceOf[Class[U]]
     val offset = offsetOf[U](field,clazz)
     def getContainer(r: T): Pointer[U] =
-      r.ptr().cast(NativeTypes.VOID).cast(NativeTypes.UINT8).offset(offset).cast(NativeTypes.VOID).cast(LayoutType.ofStruct(clazz))
+      r.ptr.cast(NativeTypes.VOID).cast(NativeTypes.UINT8).offset(offset).cast(NativeTypes.VOID).cast(LayoutType.ofStruct(clazz))
 
     def getContainerPtr(r: Pointer[T]): Pointer[U] =
-      r.cast(NativeTypes.VOID).cast(NativeTypes.UINT8).offset(offset).cast(NativeTypes.VOID).cast(LayoutType.)
-  }
-      
+      r.cast(NativeTypes.VOID).cast(NativeTypes.UINT8).offset(offset).cast(NativeTypes.VOID).cast(LayoutType.ofStruct(clazz))
 
+  given Contained[wl_list, wl_resource] = new Contained[wl_list, wl_resource]("link") {}
+
+  // given WlListOps: (wlList: wl_list) {
+  //   def foreach[T <: Struct[T]](fn: T => Unit)(given cont: Contained[wl_list,T]): Unit =
+
+  // }
+
+  def (list: Pointer[wl_list]) foreach[T <: Struct[T]](fn: T => Unit)(given cont: Contained[wl_list,T]): Unit = 
+    @tailrec
+    def helper(cur: Pointer[wl_list]): Unit =
+      if(cur != list)
+        fn(cont.getContainerPtr(cur).get())
+        helper(cur.get().next$get())
+    helper(list.get().next$get())
+
+
+  def (list: wl_list) foreach[T <: Struct[T]](fn: T => Unit)(given cont: Contained[wl_list,T]): Unit = 
+    list.ptr.foreach(fn)
+
+  new Contained[wl_list, wl_resource]("la") {}
+
+  //summon[Contained[wl_list, wl_resource]]
+  
   def offsetOf[T <: Struct[T]](fieldName: String, clazz: Class[T]): Long =
     import scala.language.implicitConversions
     val g = LayoutType.ofStruct(clazz).layout().asInstanceOf[Group]
@@ -76,7 +101,7 @@ object utils
 
   def wl_list_foreach[T <: Struct[T] with Listable[T]: ClassTag](start: wl_list)(fn: T => Unit): Unit = wl_list_foreach(start.ptr())(fn)
   
-  def wl_signal_add(signal: Pointer[wl_signal], listener: Pointer[wl_listener]) = wl_list_insert(signal.get().listener_list$get().prev$get(), listener.get().link$ptr())
+  inline def wl_signal_add(signal: Pointer[wl_signal], listener: Pointer[wl_listener]) = wl_list_insert(signal.get().listener_list$get().prev$get(), listener.get().link$ptr())
 
 
   def wl_container_of[T <: Listable[T] with Struct[T]](listItem: wl_list)(implicit classTag: ClassTag[T]): Pointer[T] = 
