@@ -10,22 +10,53 @@ import usr.include.wayland.wayland_util_lib.wl_list_insert
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
+
+import scala.quoted._
+import usr.include.wayland.wayland_server_h.wl_resource
+
 import scala.collection.JavaConverters._
 
 object utils
+  type Pointable[T] = {
+    def ptr(): Pointer[T]
+  }
+
+
   type Listable[T] = {
     def ptr(): Pointer[T]
     def link$ptr(): Pointer[wl_list]
   }
 
-  def offsetOf[T <: Struct[T]](fieldName: String)(implicit classTag: ClassTag[T]) =
+
+
+  // trait CanTreatLikeList[T <: Struct[T]](offset: Long)
+  //   def foreach(fn: T => Unit, start: Pointer[wl_list]): Unit =
+  //     @tailrec
+  //     def helper(cur: Pointer[wl_list]): Unit =
+  //       if(cur != start)
+
+  trait Contained[T <: Struct[T],U <: Struct[U]](field: String)(given ct: ClassTag[U]) {
+    val clazz = ct.runtimeClass.asInstanceOf[Class[U]]
+    val offset = offsetOf[U](field,clazz)
+    def getContainer(r: T): Pointer[U] =
+      r.ptr().cast(NativeTypes.VOID).cast(NativeTypes.UINT8).offset(offset).cast(NativeTypes.VOID).cast(LayoutType.ofStruct(clazz))
+
+    def getContainerPtr(r: Pointer[T]): Pointer[U] =
+      r.cast(NativeTypes.VOID).cast(NativeTypes.UINT8).offset(offset).cast(NativeTypes.VOID).cast(LayoutType.)
+  }
+      
+
+  def offsetOf[T <: Struct[T]](fieldName: String, clazz: Class[T]): Long =
     import scala.language.implicitConversions
-    val g = LayoutType.ofStruct(classTag.runtimeClass.asInstanceOf[Class[T]]).layout().asInstanceOf[Group]
+    val g = LayoutType.ofStruct(clazz).layout().asInstanceOf[Group]
 
     val bits = for(l <- g.elements().asScala.takeWhile(_.name().filter(_ == fieldName).isEmpty)) yield
       l.bitsSize()
 
     -(bits.sum / 8)
+
+  def offsetOf[T <: Struct[T]](fieldName: String)(implicit classTag: ClassTag[T]): Long =
+    offsetOf(fieldName,classTag.runtimeClass.asInstanceOf[Class[T]])
 
   @tailrec
   def bytePointerToString(p: Pointer[java.lang.Byte], length: Long = 0): String =
@@ -47,12 +78,14 @@ object utils
   
   def wl_signal_add(signal: Pointer[wl_signal], listener: Pointer[wl_listener]) = wl_list_insert(signal.get().listener_list$get().prev$get(), listener.get().link$ptr())
 
-  def wl_container_of[T <: Listable[T] with Struct[T]](listItem: wl_list)(implicit classTag: ClassTag[T]): Pointer[T] =
+
+  def wl_container_of[T <: Listable[T] with Struct[T]](listItem: wl_list)(implicit classTag: ClassTag[T]): Pointer[T] = 
     val clazz = classTag.runtimeClass.asInstanceOf[Class[T]]
     val offset = offsetOf[T]("link")
     val ptr = listItem.ptr().cast(NativeTypes.VOID).cast(NativeTypes.UINT8).offset(offset).cast(NativeTypes.VOID).cast(LayoutType.ofStruct(clazz))
     require(ptr.addr() - listItem.ptr().addr() == offset)
     ptr
+  
 
   def wl_container_of[T <: Listable[T] with Struct[T]](listItemPtr: Pointer[wl_list])(implicit classTag: ClassTag[T]): Pointer[T] =
     wl_container_of(listItemPtr.get)
