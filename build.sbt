@@ -6,13 +6,13 @@ name := "Wayland McWayface (JVM-edition)"
 
 version := "0.1"
 
-scalaVersion := "0.17.0-RC1"
+scalaVersion := "0.19.0-RC1"
 
 codeCommand := Seq("flatpak", "run", "com.visualstudio.code.oss","-n")
 
 libraryDependencies += ("org.scala-lang.modules" %% "scala-java8-compat" % "0.9.0").withDottyCompat(scalaVersion.value)
 
-libraryDependencies += ("org.scalatest" %% "scalatest" % "3.0.5" % "test").withDottyCompat(scalaVersion.value)
+//libraryDependencies += ("org.scalatest" %% "scalatest" % "3.0.5" % "test").withDottyCompat(scalaVersion.value)
 
 
 fork := true
@@ -28,14 +28,16 @@ xdgShellProtocolLocation := file("/usr/share/wayland-protocols/unstable/xdg-shel
 includeDirectory := file("/usr/include")
 
 libraryDirectory := file("/usr/lib64")
+scalacOptions ++= Seq(
+  "-Yindent-colons")
 
 headers := Set(
   includeDirectory.value / "wlr/types/wlr_output.h",
   includeDirectory.value / "wlr/backend.h",
   includeDirectory.value / "wlr/render/wlr_renderer.h",
   includeDirectory.value / "wlr/types/wlr_idle.h",
-  includeDirectory.value / "wlr/types/wlr_gamma_control.h",
-  includeDirectory.value / "wlr/types/wlr_screenshooter.h",
+  includeDirectory.value / "wlr/types/wlr_gamma_control_v1.h",
+  includeDirectory.value / "wlr/types/wlr_screencopy_v1.h",
   includeDirectory.value / "wlr/types/wlr_compositor.h",
   includeDirectory.value / "wlr/types/wlr_primary_selection_v1.h",
   includeDirectory.value / "wlr/types/wlr_xdg_shell_v6.h",

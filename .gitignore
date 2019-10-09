@@ -6,3 +6,6 @@
 project/*
 target/*
 out/*
+.dotty-ide-artifact
+.dotty-ide.json
+dotty/out/*
