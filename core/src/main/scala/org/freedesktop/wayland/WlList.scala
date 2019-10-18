@@ -10,10 +10,12 @@ import usr.include.wayland.wayland_server_h.wl_resource
 
 import scala.collection.JavaConverters._
 
-case class WlList[C <: Struct[C]](listPtr: Pointer[wl_list], offset: Long)
+class WlListWrapper[C <: Struct[C]](listPtr: Pointer[wl_list], offset: Long)(given ClassTag[C]) extends Pointer[wl_list]
+  export listPtr._
 
   given Pointer[wl_list] = listPtr
   given Long = offset
+
   inline def head(): Pointer[C] = WlListMacros.head[C]
 
   inline def last(): Pointer[C] = WlListMacros.last[C]
@@ -24,22 +26,31 @@ case class WlList[C <: Struct[C]](listPtr: Pointer[wl_list], offset: Long)
 
   //lazy val length = lengthCalc
 
-object WlList 
-  def apply[C <: Struct[C], S <: String](listPtr: Pointer[wl_list])(given ClassTag[C], ContainsWlList[C,S]): WlList[C] = 
-    WlList(listPtr, summon[ContainsWlList[C,S]].offset)
-
-  def offsetOf[T <: Struct[T]](fieldName: String, clazz: Class[T]): Long =
-    import scala.language.implicitConversions
-    val g = LayoutType.ofStruct(clazz).layout().asInstanceOf[Group]
-
-    val bits = for(l <- g.elements().asScala.takeWhile(_.name().filter(_ == fieldName).isEmpty)) yield
-      l.bitsSize()
-
-    -(bits.sum / 8)
-
-  def offsetOf[T <: Struct[T]](fieldName: String)(implicit classTag: ClassTag[T]): Long =
-    offsetOf(fieldName,classTag.runtimeClass.asInstanceOf[Class[T]])
   
-  type ContainsWlList[T <: Struct[T], U <: String] = Contains[T,wl_list, U]
+object WlList
+  inline def genOffset[T <: Struct[T]: ClassTag](name: String) = 
+    val g = LayoutType.ofStruct(summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).layout().asInstanceOf[Group]
 
-  given ContainsWlList[wl_resource, "link"] = new ContainsWlList[wl_resource, "link"] { val offset = genOffset("link") }
+    val iter = g.elements.iterator
+    var cont = true
+    var bits = 0l
+    while(iter.hasNext && cont)
+      val n = iter.next
+      if !n.name().filter(_ == name).isEmpty then
+        bits += n.bitsSize
+      else
+        cont = false
+    
+    -(bits / 8)
+
+  def apply[C <: Struct[C], S <: Singleton & String](listPtr: Pointer[wl_list])(given ClassTag[C], ContainsWlList[C,S]): WlListWrapper[C] = 
+    WlListWrapper(listPtr, summon[ContainsWlList[C,S]].offset)
+
+  type ContainsWlList[T <: Struct[T], U <: Singleton & String] = Contains[T,wl_list, U]
+
+  //given Contains[wl_list, wl_list, ""] { val offset = 0 }
+
+  given: (list: Pointer[wl_list]) 
+    inline def ofWithName[T <: Struct[T],U <: Singleton & String](given Contains[T, wl_list, U], ClassTag[T]) = WlList(list)
+    inline def of[T <: Struct[T]](given Contains[T,wl_list,"link"], ClassTag[T]) = WlList[T,"link"](list)
+

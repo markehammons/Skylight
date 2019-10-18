@@ -8,10 +8,9 @@ import usr.include.wayland.wayland_server_h.wl_resource
 import usr.include.wayland.wayland_util_h.wl_list
 
 
-trait Contains[T <: Struct[T]: ClassTag, U <: Struct[U], V <: String]
-  val offset: Long
-
-  def genOffset(name: V) = 
+trait Contains[T <: Struct[T]: ClassTag, U <: Struct[U], V <: Singleton & String: ValueOf]
+  val offset: Long =
+    val name = summon[ValueOf[V]].value
     val g = LayoutType.ofStruct(summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).layout().asInstanceOf[Group]
 
     val iter = g.elements.iterator

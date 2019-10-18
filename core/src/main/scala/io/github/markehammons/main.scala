@@ -24,7 +24,7 @@ object main
   given DisplayOps
 
 
-  def main(args: Array[String]) =
+  def main(args: Array[String]): Unit =
     given scope: Scope = Scope.globalScope().fork()
 
     val server = mcw_server()

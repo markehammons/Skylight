@@ -1,12 +1,14 @@
 val commonSettings = Seq(
   scalaVersion := "0.19.0-RC1",
-  libraryDependencies += ("org.scala-lang.modules" %% "scala-java8-compat" % "0.9.0").withDottyCompat(scalaVersion.value),
-  unmanagedBase := unmanagedBase.value
+  libraryDependencies ++= Seq(
+    ("org.scala-lang.modules" %% "scala-java8-compat" % "0.9.0").withDottyCompat(scalaVersion.value)
+  ),
 )
 
 codeCommand := Seq("flatpak", "run", "com.visualstudio.code.oss","-n")
 
 libraryDependencies += ("org.scala-lang.modules" %% "scala-java8-compat" % "0.9.0").withDottyCompat(scalaVersion.value)
+
 
 //libraryDependencies += ("org.scalatest" %% "scalatest" % "3.0.5" % "test").withDottyCompat(scalaVersion.value)
 

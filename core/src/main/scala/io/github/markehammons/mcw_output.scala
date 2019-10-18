@@ -24,6 +24,8 @@ import wlroots.wlr_surface_lib.{wlr_surface_from_resource, wlr_surface_get_textu
 import utils.given
 import utils.foreach
 import org.freedesktop.wayland.WlList
+import org.freedesktop.wayland.WlList.given 
+import org.freedesktop.wayland.WlList.ContainsWlList
 import org.swaywm.wlroots.WlrOutputP.given
 
 case class mcw_output(output: wlr_output, server: mcw_server)(given Scope)
@@ -54,7 +56,7 @@ case class mcw_output(output: wlr_output, server: mcw_server)(given Scope)
   destroy.notify$set(allocateCallback(output_destroy_notify))
   wl_signal_add(output.events$get().destroy$ptr(), destroy.ptr())
 
-  lazy val output_frame_notify: FI5 = (_: Pointer[wl_listener], data: Pointer[_]) =>
+  lazy val output_frame_notify: FI5 = (_: Pointer[wl_listener], data: Pointer[?]) =>
     val wlr_output = data.cast(LayoutType.ofStruct(classOf[wlr_output]))
     val renderer = wlr_backend_get_renderer(
       wlr_output.get().backend$get())
@@ -71,7 +73,11 @@ case class mcw_output(output: wlr_output, server: mcw_server)(given Scope)
 
     println(s"last frame at ${last_frame.tv_sec$get}s ${last_frame.tv_nsec$get}ns")
 
-    val list = WlList[wl_resource](server.compositor.get.surface_resources$ptr)
+    // given ContainsWlList[wl_resource,"link"] = WlList[wl_resource, "link"](output.modes$ptr)
+
+    given ContainsWlList[wl_resource, "link"]
+
+    val list = server.compositor.get.surface_resources$ptr.of[wl_resource]
     val listFn = (resource: wl_resource) => {
       val scope = wlr_matrix_lib.scope().fork()
       val surface = wlr_surface_from_resource(resource.ptr())
