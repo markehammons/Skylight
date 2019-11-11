@@ -25,6 +25,7 @@ object main
 
 
   def main(args: Array[String]): Unit =
+
     given scope: Scope = Scope.globalScope().fork()
 
     val server = mcw_server()

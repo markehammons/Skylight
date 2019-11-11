@@ -28,8 +28,8 @@ type WlrOutput = wlr_output
 object WlrOutput
   given ContainsWlList[wlr_output_mode, "link"]
   given: (output: WlrOutput)
-      inline def width: Int = output.width$get
+      inline def width: Int = output.width
       //inline def width_=(value: Int): Unit = output.width$set(value)
-      inline def height: Int = output.height$get
+      inline def height: Int = output.height
 
-      inline def modes: WlListWrapper[wlr_output_mode] = output.modes$ptr.of[wlr_output_mode]
+      inline def modesL: WlListWrapper[wlr_output_mode] = output.$modes.of[wlr_output_mode]

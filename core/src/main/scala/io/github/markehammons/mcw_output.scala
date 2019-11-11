@@ -49,17 +49,17 @@ case class mcw_output(output: wlr_output, server: mcw_server)(given Scope)
   val destroy = allocateStruct(classOf[wl_listener])
   val frame = allocateStruct(classOf[wl_listener])
 
-  frame.notify$set(allocateCallback(output_frame_notify))
-  wl_signal_add(output.events$get().frame$ptr(), frame.ptr())
+  frame.notify$ = allocateCallback(output_frame_notify)
+  wl_signal_add(output.events.$frame, frame.ptr())
 
 
-  destroy.notify$set(allocateCallback(output_destroy_notify))
-  wl_signal_add(output.events$get().destroy$ptr(), destroy.ptr())
+  destroy.notify$ = allocateCallback(output_destroy_notify)
+  wl_signal_add(output.events.$destroy, destroy.ptr())
 
   lazy val output_frame_notify: FI5 = (_: Pointer[wl_listener], data: Pointer[?]) =>
     val wlr_output = data.cast(LayoutType.ofStruct(classOf[wlr_output]))
     val renderer = wlr_backend_get_renderer(
-      wlr_output.get().backend$get())
+      wlr_output.get().backend)
 
 
     val timeScope = time_lib.scope().fork()
@@ -67,17 +67,17 @@ case class mcw_output(output: wlr_output, server: mcw_server)(given Scope)
     clock_gettime(CLOCK_MONOTONIC, now.ptr())
 
     wlr_output.attachRender(Pointer.ofNull)
-    wlr_renderer_begin(renderer, wlr_output.get().width$get(), wlr_output.get().height$get())
+    wlr_renderer_begin(renderer, wlr_output.get().width, wlr_output.get().height)
 
     wlr_renderer_clear(renderer, color.elementPointer())
 
-    println(s"last frame at ${last_frame.tv_sec$get}s ${last_frame.tv_nsec$get}ns")
+    println(s"last frame at ${last_frame.tv_sec}s ${last_frame.tv_nsec}ns")
 
     // given ContainsWlList[wl_resource,"link"] = WlList[wl_resource, "link"](output.modes$ptr)
 
     given ContainsWlList[wl_resource, "link"]
 
-    val list = server.compositor.get.surface_resources$ptr.of[wl_resource]
+    val list = server.compositor.get.$surface_resources.of[wl_resource]
     val listFn = (resource: wl_resource) => {
       val scope = wlr_matrix_lib.scope().fork()
       val surface = wlr_surface_from_resource(resource.ptr())
@@ -86,15 +86,15 @@ case class mcw_output(output: wlr_output, server: mcw_server)(given Scope)
       if(wlr_surface_has_buffer(surface))
         val render_box = scope.allocateStruct(classOf[wlr_box])
 
-        render_box.x$set(20)
-        render_box.y$set(20)
+        render_box.x = 20
+        render_box.y = 20
 
-        render_box.width$set(surface.get().current$get().width$get())
-        render_box.height$set(surface.get().current$get().height$get())
+        render_box.width = surface.get().current.width
+        render_box.height = surface.get().current.height
 
         val matrix = scope.allocateArray(NativeTypes.FLOAT, 16)
 
-        wlr_matrix_project_box(matrix.elementPointer(), render_box.ptr(), surface.get().current$get().transform$get(), 0, wlr_output.get().transform_matrix$get().elementPointer())
+        wlr_matrix_project_box(matrix.elementPointer(), render_box.ptr(), surface.get().current.transform, 0, wlr_output.get().transform_matrix.elementPointer())
         wlr_render_texture_with_matrix(renderer, wlr_surface_get_texture(surface), matrix.elementPointer(), 1.0f)
         wlr_surface_send_frame_done(surface, last_frame.ptr())
         scope.close()
@@ -104,14 +104,14 @@ case class mcw_output(output: wlr_output, server: mcw_server)(given Scope)
     wlr_output.commit()
     wlr_renderer_end(renderer)
 
-    last_frame.tv_sec$set(now.tv_sec$get())
-    last_frame.tv_nsec$set(now.tv_nsec$get())
+    last_frame.tv_sec = now.tv_sec
+    last_frame.tv_nsec = now.tv_nsec
     timeScope.close()
   // end output_frame_notify
 
   lazy val output_destroy_notify: FI5 = (_: Pointer[wl_listener], _: Pointer[_]) =>
-    wl_list_remove(destroy.link$ptr())
-    wl_list_remove(frame.link$ptr())
+    wl_list_remove(destroy.$link)
+    wl_list_remove(frame.$link)
     wl_display_terminate(server.wl_display)
     server.removeOutput(this)
   end output_destroy_notify

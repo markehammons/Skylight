@@ -60,8 +60,8 @@ object utils
     def helper(cur: Pointer[wl_list]): Unit =
       if(cur != list)
         fn(cont.getContainerPtr(cur).get())
-        helper(cur.get().next$get())
-    helper(list.get().next$get())
+        helper(cur.get().next)
+    helper(list.get().next)
 
 
   def (list: wl_list) foreach[T <: Struct[T]](fn: T => Unit)(given cont: Contained[wl_list,T]): Unit = 
@@ -96,12 +96,12 @@ object utils
     def helper(cur: Pointer[wl_list]): Unit =
       if(cur != start)
         fn(wl_container_of[T](cur).get())
-        helper(cur.get().next$get())
-    helper(start.get().next$get())
+        helper(cur.get().next)
+    helper(start.get().next)
 
   def wl_list_foreach[T <: Struct[T] with Listable[T]: ClassTag](start: wl_list)(fn: T => Unit): Unit = wl_list_foreach(start.ptr())(fn)
   
-  inline def wl_signal_add(signal: Pointer[wl_signal], listener: Pointer[wl_listener]) = wl_list_insert(signal.get().listener_list$get().prev$get(), listener.get().link$ptr())
+  inline def wl_signal_add(signal: Pointer[wl_signal], listener: Pointer[wl_listener]) = wl_list_insert(signal.get().listener_list.prev, listener.get().$link)
 
 
   def wl_container_of[T <: Listable[T] with Struct[T]](listItem: wl_list)(implicit classTag: ClassTag[T]): Pointer[T] = 
